@@ -10,6 +10,10 @@ var web3 = new Web3(process.env.nodeURL || Web3.givenProvider || 'https://mainne
 var myContract = new web3.eth.Contract(tellorGetters.abi,'0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5');
 var userContract = new web3.eth.Contract(userJSON.abi,'0xCaC3937932621F62D94aCdE77bBB2a091FD26f58');
 
+router.get('/', async function(req,res){
+	res.send("getting it...")
+})
+
 
 router.get('/info', async function(req,res){
 	console.log('getting all variable information...')
