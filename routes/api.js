@@ -5,8 +5,7 @@ var Web3 = require('web3');
 var tellorGetters = require('../constants/TellorGetters.json');
 var userJSON = require('../constants/UserContract.json')
 // "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
-var web3 = new Web3(process.env.nodeURL || Web3.givenProvider || 'https://mainnet.infura.io/v3/7f11ed6df93946658bf4c817620fbced');
-
+var web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
 var myContract = new web3.eth.Contract(tellorGetters.abi,'0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5');
 var userContract = new web3.eth.Contract(userJSON.abi,'0xCaC3937932621F62D94aCdE77bBB2a091FD26f58');
 

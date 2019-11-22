@@ -1,7 +1,7 @@
 const express=require('express')
 // set up express app
 const favicon = require('express-favicon');
- 
+require('dotenv').config()
  
 
 
