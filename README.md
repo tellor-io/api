@@ -1,16 +1,33 @@
-# tellorREST
-tellorAPI
+# Tellor REST API
+This repository allows you to create a local API for Tellor information. 
 
 ## To test:
 
+Requirements: Node.js version 9.2.0
+
+1. Clone the repository
+2. Create a .env file based on the example (update the infura key to reflect your key)
+3. Run:
+
+```node
+		npm install
 		node index
+```
 
-	Now visit here...should work:
-		http://localhost:4000/api/info
-		http://localhost:4000/api/price/1
+4. Now visit these urls from your browswer:
 
-## Common Hashes:
+* To get general information:		http://localhost:5000/info
+* To get information about the request queue: http://localhost:5000/requestq
+* To get information about a requestId (api, granularity, etc..): http://localhost:5000/requestinfo/requestID
+    * For example: http://localhost:5000/requestinfo/1
+* To get price inforamtion for specified requestId: http://localhost:5000/price/requestID
+    * For example: http://localhost:5000/price/1
+* To get dispute inforamtion for a specific disputeId:  http://localhost:5000/dispute/:disputeID
 
+## Custom API 
+Use the following hashes to read data from Tellor's contract.
+
+### Common Hashes:
 | Function        | value              | keccak-256                                                         |
 |-----------------|--------------------|--------------------------------------------------------------------|
 | addressVars     | tellorContract     | 0xd48fd09afdab521f4f69bd2af8177f60fb0709ce0f1b3d5b8a2e233a20453848 |
