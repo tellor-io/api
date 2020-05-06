@@ -16,6 +16,7 @@
   "author": "Tellor",
   "homepage": "https://github.com/tellor-io/TellorREST",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.14.1",
     "express-favicon": "^2.0.1",
