@@ -20,8 +20,9 @@ Requirements: Node.js version 9.2.0
 * To get information about the request queue: http://localhost:5000/requestq
 * To get information about a requestId (api, granularity, etc..): http://localhost:5000/requestinfo/requestID
     * For example: http://localhost:5000/requestinfo/1
-* To get price inforamtion for specified requestId: http://localhost:5000/price/requestID
-    * For example: http://localhost:5000/price/1
+* To get price inforamtion for specified requestId: http://localhost:5000/price/requestID/count
+    * For example: http://localhost:5000/price/1/10<br/>
+    Count is optional and defines how many historical values to return. When omitted it returns the most recent value.
 * To get dispute inforamtion for a specific disputeId:  http://localhost:5000/dispute/:disputeID
 
 ## Custom API 
