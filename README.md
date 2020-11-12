@@ -14,7 +14,11 @@ Requirements: Node.js version 9.2.0
 		node index
 ```
 
-4. Now visit these urls from your browswer:
+4. Now visit these urls from your browser:
+ >Each end point also accepts the network name as an optional parameter:<br/>
+ When not provided it defaults to `mainnet`.<br/>
+ `.../rinkeby/info` - connects to rinkeby <br/>
+`.../info` connects to `mainnet`
 
 * To get general information:		http://localhost:5000/info
 * To get information about the request queue: http://localhost:5000/requestq
