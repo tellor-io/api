@@ -3,26 +3,25 @@ const router = express.Router();
 var Web3 = require('web3');
 var fs = require('fs');
 var tellorGetters = require('../constants/TellorGetters.json');
-var gettersContract
+var web3, gettersContract, netName
 
-router.param('netName', function (req, res, next, id) {
+function useNetwork(netName) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
-	switch (req.params.netName) {
+	switch (netName) {
 		case "rinkeby":
-			var web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
+			web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0xFe41Cb708CD98C5B20423433309E55b53F79134a');
 			break;
 		default:
-			req.params.netName = "mainnet"
-			var web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
-			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5');
+			netName = "mainnet"
+			web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
+			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5');
 	}
-	console.log('network in use:', req.params.netName);
-	next()
-})
+	console.log("using network:", netName)
+}
 
 function processInput(filename, json) {
-	fs.open(filename, 'a', 666, function (e, id) {
+	fs.open(filename, 'a', 777, function (e, id) {
 		fs.write(id, json + "\n", null, 'utf8', function () {
 			fs.close(id, function () {
 				console.log('file is updated');
@@ -33,6 +32,7 @@ function processInput(filename, json) {
 
 // Get general Tellor state data and saves the data under data/state.json
 router.get('/:netName?/info', async function (req, res) {
+	useNetwork(req.params.netName)
 	console.log('getting all variable information...')
 	//read data from Tellor's contract
 	var _stakerCount = await gettersContract.methods.getUintVar("0xedddb9344bfe0dadc78c558b8ffca446679cbffc17be64eb83973fce7bea5f34").call();
@@ -66,12 +66,13 @@ router.get('/:netName?/info', async function (req, res) {
 		requestCount: _requestCount
 	}
 	var jsonStats = JSON.stringify(state);
-	let filename = "./data/state.json";
+	let filename = "public/state.json";
 	processInput(filename, jsonStats);
 })
 
 //Get data for as specific price request
 router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
+	useNetwork(req.params.netName)
 	var reqCount = req.params.count
 	// reqCount is optional so set to 1 when undefined.
 	if (reqCount == undefined) {
@@ -99,6 +100,7 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 
 //Get data for a specific dispute
 router.get('/:netName?/dispute/:disputeID', async function (req, res) {
+	useNetwork(req.params.netName)
 	console.log('getting dispute info...', req.params.disputeID);
 	var _returned = await gettersContract.methods.getAllDisputeVars(req.params.disputeID).call();
 	res.send({
@@ -123,6 +125,7 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 
 //Get data for a specific dispute
 router.get('/:netName?/requestq', async function (req, res) {
+	useNetwork(req.params.netName)
 	console.log('getting requestq...');
 	var _returned = await gettersContract.methods.getRequestQ().call();
 	res.send({
@@ -132,6 +135,7 @@ router.get('/:netName?/requestq', async function (req, res) {
 
 //Get data for information about the specified requestID
 router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
+	useNetwork(req.params.netName)
 	console.log('getting requestID information...', req.params.requestID);
 	var _returned = await gettersContract.methods.getRequestVars(req.params.requestID).call();
 	res.send({
