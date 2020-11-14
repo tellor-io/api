@@ -3,7 +3,7 @@ const router = express.Router();
 var Web3 = require('web3');
 var fs = require('fs');
 var tellorGetters = require('../constants/TellorGetters.json');
-var web3, gettersContract, netName
+var web3, gettersContract
 
 function useNetwork(netName) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -21,7 +21,11 @@ function useNetwork(netName) {
 }
 
 function processInput(filename, json) {
-	fs.open(filename, 'a', 777, function (e, id) {
+	fs.open(filename, 'a', function (e, id) {
+		if (e != null) {
+			console.log("open stats file for appending", e)
+			return
+		}
 		fs.write(id, json + "\n", null, 'utf8', function () {
 			fs.close(id, function () {
 				console.log('file is updated');
