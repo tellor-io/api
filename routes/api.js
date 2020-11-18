@@ -96,10 +96,7 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 			value: value,
 		})
 	}
-
-	res.send([
-		results,
-	])
+	res.send(results)
 })
 
 //Get data for a specific dispute
