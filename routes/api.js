@@ -87,7 +87,7 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 
 	var totalCount = await gettersContract.methods.getNewValueCountbyRequestId(reqID).call();
 
-	results = [];
+	var results = [];
 	for (let index = 1; index <= reqCount; index++) {
 		var timestamp = await gettersContract.methods.getTimestampbyRequestIDandIndex(reqID, totalCount - index).call();
 		var value = await gettersContract.methods.retrieveData(reqID, timestamp).call();
