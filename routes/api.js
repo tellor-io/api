@@ -3,7 +3,8 @@ const router = express.Router();
 var Web3 = require('web3');
 var fs = require('fs');
 var tellorGetters = require('../constants/TellorGetters.json');
-var web3, gettersContract
+var tellorLens = require('../constants/Lens.json');
+var web3, gettersContract, lensContract
 
 function useNetwork(netName) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -11,6 +12,7 @@ function useNetwork(netName) {
 		case "rinkeby":
 			web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0xFe41Cb708CD98C5B20423433309E55b53F79134a');
+			lensContract = new web3.eth.Contract(tellorLens.abi, '0xcd3cf271dE99890e9EB37CE6EEDFA1CB2533D6Af');
 			break;
 		default:
 			netName = "mainnet"
@@ -85,18 +87,15 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 	var reqID = req.params.requestID
 	console.log('getting last', reqCount, 'prices for request ID', reqID);
 
-	var totalCount = await gettersContract.methods.getNewValueCountbyRequestId(reqID).call();
-
+	var r = await lensContract.methods.getLastNewValues(reqID, reqCount).call()
 	var results = [];
-	for (let index = 1; index <= reqCount; index++) {
-		var timestamp = await gettersContract.methods.getTimestampbyRequestIDandIndex(reqID, totalCount - index).call();
-		var value = await gettersContract.methods.retrieveData(reqID, timestamp).call();
+	for (let index = 0; index < r.length; index++) {
 		results.push({
-			timestamp: timestamp,
-			value: value,
+			timestamp: r[index][0],
+			value: r[index][1],
 		})
-	}
-	res.send(results)
+	};
+	res.send(results);
 })
 
 //Get data for a specific dispute
