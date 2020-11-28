@@ -3,7 +3,8 @@ const router = express.Router();
 var Web3 = require('web3');
 var fs = require('fs');
 var tellorGetters = require('../constants/TellorGetters.json');
-var web3, gettersContract
+var tellorLens = require('../constants/Lens.json');
+var web3, gettersContract, lensContract
 
 function useNetwork(netName) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -11,11 +12,13 @@ function useNetwork(netName) {
 		case "rinkeby":
 			web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0xFe41Cb708CD98C5B20423433309E55b53F79134a');
+			lensContract = new web3.eth.Contract(tellorLens.abi, '0xFC1Cc83775cf42433C3E06410Bc5367E6676e56b');
 			break;
 		default:
 			netName = "mainnet"
 			web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
 			gettersContract = new web3.eth.Contract(tellorGetters.abi, '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5');
+			lensContract = new web3.eth.Contract(tellorLens.abi, '0xB3b7C09e1501FE212b58eEE9915DA625706eea95');
 	}
 	console.log("using network:", netName)
 }
@@ -85,18 +88,15 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 	var reqID = req.params.requestID
 	console.log('getting last', reqCount, 'prices for request ID', reqID);
 
-	var totalCount = await gettersContract.methods.getNewValueCountbyRequestId(reqID).call();
-
+	var r = await lensContract.methods.getLastNewValues(reqID, reqCount).call()
 	var results = [];
-	for (let index = 1; index <= reqCount; index++) {
-		var timestamp = await gettersContract.methods.getTimestampbyRequestIDandIndex(reqID, totalCount - index).call();
-		var value = await gettersContract.methods.retrieveData(reqID, timestamp).call();
+	for (let index = 0; index < r.length; index++) {
 		results.push({
-			timestamp: timestamp,
-			value: value,
+			timestamp: r[index][0],
+			value: r[index][1],
 		})
-	}
-	res.send(results)
+	};
+	res.send(results);
 })
 
 //Get data for a specific dispute
