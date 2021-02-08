@@ -5,3 +5,5 @@ public/state.json
 # Local development
 *.env
 *.dev
+contracts
+tmp

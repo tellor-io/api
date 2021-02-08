@@ -6,12 +6,17 @@ This repository allows you to create a local API for Tellor information.
 Requirements: Node.js version 9.2.0
 
 1. Clone the repository
-2. Create a .env file based on the example (update the infura key to reflect your key)
+2. Create a .env file based on the example (update the nodeURLRinkeby)
 3. Run:
 
 ```node
-		npm install
-		node index
+	npm install
+	node index
+```
+
+To update the contracts ABI
+```bash
+    go run scripts/generate.go
 ```
 
 4. Now visit these urls from your browser:
