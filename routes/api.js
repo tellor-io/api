@@ -169,7 +169,7 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 	try {
 		useNetwork(req.params.netName)
 		console.log('getting requestID information...', req.params.requestID);
-		var _returned = await tellorMaster.methods.getRequestVars(req.params.requestID).call();
+		var _returned = await tellorProxy.methods.getRequestVars(req.params.requestID).call();
 		res.send({
 			apiString: _returned[0],
 			dataSymbol: _returned[1],
@@ -185,6 +185,7 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 })
 
 // Get data for information about the specified requestID
+// challenge, currentRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
 router.get('/:netName?/currentVariables', async function (req, res) {
 	try {
 		useNetwork(req.params.netName)
