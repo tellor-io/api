@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 var Web3 = require('web3');
 var fs = require('fs');
-var web3, tellorMaster, tellorProxy, lensContract
+var web3, tellorMaster, tellorMaster, tellorLens
 
 function useNetwork(netName, res) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -10,22 +10,19 @@ function useNetwork(netName, res) {
 
 		console.log(process.cwd())
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
-		const proxyABI = JSON.parse(fs.readFileSync("contracts/tellorCurrent.json"));
 		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
 
 		switch (netName) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
-				tellorProxy = new web3.eth.Contract(proxyABI, '0xFe41Cb708CD98C5B20423433309E55b53F79134a');
-				tellorMaster = new web3.eth.Contract(masterABI, '0xFe41Cb708CD98C5B20423433309E55b53F79134a');
-				lensContract = new web3.eth.Contract(lensABI, '0x556ca72690Bd59Fd89E330340A22a50867eFb704');
+				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
+				tellorLens = new web3.eth.Contract(lensABI, '0x556ca72690Bd59Fd89E330340A22a50867eFb704');
 				break;
 			default:
 				netName = "mainnet"
 				web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
-				tellorProxy = new web3.eth.Contract(proxyABI, '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5');
-				tellorMaster = new web3.eth.Contract(masterABI, '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5');
-				lensContract = new web3.eth.Contract(lensABI, '0xB3b7C09e1501FE212b58eEE9915DA625706eea95');
+				tellorMaster = new web3.eth.Contract(masterABI, 'tellorLens');
+				tellorLens = new web3.eth.Contract(lensABI, '0xB3b7C09e1501FE212b58eEE9915DA625706eea95');
 		}
 		console.log("using network:", netName)
 	} catch (e) {
@@ -54,13 +51,13 @@ router.get('/:netName?/info', async function (req, res) {
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
-		var _stakerCount = await tellorMaster.methods.getUintVar("0xedddb9344bfe0dadc78c558b8ffca446679cbffc17be64eb83973fce7bea5f34").call();
-		var _difficulty = await tellorMaster.methods.getUintVar("0xb12aff7664b16cb99339be399b863feecd64d14817be7e1f042f97e3f358e64e").call();
-		var _currentRequestId = await tellorMaster.methods.getUintVar("0x7584d7d8701714da9c117f5bf30af73b0b88aca5338a84a21eb28de2fe0d93b8").call();
-		var _disputeCount = await tellorMaster.methods.getUintVar("0x475da5340e76792184fb177cb85d21980c2530616313aef501564d484eb5ca1e").call();
-		var _totalSupply = await tellorMaster.methods.getUintVar("0xb1557182e4359a1f0c6301278e8f5b35a776ab58d39892581e357578fb287836").call();
-		var _timeOfLastValue = await tellorMaster.methods.getUintVar("0x97e6eb29f6a85471f7cc9b57f9e4c3deaf398cfc9798673160d7798baf0b13a4").call();
-		var _requestCount = await tellorMaster.methods.getUintVar("0x05de9147d05477c0a5dc675aeea733157f5092f82add148cf39d579cafe3dc98").call();
+		var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
+		var _difficulty = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DIFFICULTY")).call();
+		var _currentRequestId = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_CURRENT_REQUESTID")).call();
+		var _disputeCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DISPUTE_COUNT")).call();
+		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
+		var _timeOfLastValue = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TIME_OF_LAST_NEW_VALUE")).call();
+		var _requestCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_REQUEST_COUNT")).call();
 		res.send({
 			stakerCount: _stakerCount,
 			difficulty: _difficulty,
@@ -105,12 +102,12 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 		var reqID = req.params.requestID
 		console.log('getting last', reqCount, 'prices for request ID', reqID);
 
-		var r = await lensContract.methods.getLastValues(reqID, reqCount).call()
+		var r = await tellorLens.methods.getLastValues(reqID, reqCount).call()
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
 			results.push({
-				timestamp: r[index][0],
-				value: r[index][1],
+				timestamp: r[index].timestamp,
+				value: r[index].value,
 			})
 		};
 		res.send(results);
@@ -132,7 +129,7 @@ router.get('/:netName?/prices/:count?', async function (req, res) {
 
 		console.log('getting last', reqCount, 'prices for for all data IDs');
 
-		var r = await lensContract.methods.getLastValuesAll(reqCount).call()
+		var r = await tellorLens.methods.getLastValuesAll(reqCount).call()
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
 			results.push({
@@ -198,7 +195,7 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		console.log('getting requestID information...', req.params.requestID);
-		var _returned = await tellorProxy.methods.getRequestVars(req.params.requestID).call();
+		var _returned = await tellorMaster.methods.getRequestVars(req.params.requestID).call();
 		res.send({
 			apiString: _returned[0],
 			dataSymbol: _returned[1],
@@ -218,7 +215,7 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 router.get('/:netName?/currentVariables', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let variables = await tellorProxy.methods.getCurrentVariables().call();
+		let variables = await tellorMaster.methods.getCurrentVariables().call();
 		res.send({ variables })
 	} catch (e) {
 		let err = e.message
@@ -229,7 +226,7 @@ router.get('/:netName?/currentVariables', async function (req, res) {
 router.get('/:netName?/getDisputeFee', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let disputeFee = await tellorProxy.methods.getUintVar(web3.utils.soliditySha3('disputeFee')).call();
+		let disputeFee = await tellorMaster.methods.getUintVar(web3.utils.soliditySha3('disputeFee')).call();
 		res.send({ disputeFee })
 	} catch (e) {
 		let err = e.message

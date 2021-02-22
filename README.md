@@ -16,7 +16,7 @@ Requirements: Node.js version 9.2.0
 
 To update the contracts ABI
 ```bash
-    go run scripts/generate.go
+    make generate
 ```
 
 4. Now visit these urls from your browser:
