@@ -7,7 +7,6 @@ var web3, tellorMaster, tellorMaster, tellorLens
 function useNetwork(netName, res) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
 	try {
-
 		console.log(process.cwd())
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
 		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
@@ -16,13 +15,13 @@ function useNetwork(netName, res) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0x556ca72690Bd59Fd89E330340A22a50867eFb704');
+				tellorLens = new web3.eth.Contract(lensABI, '0xea8260126324cA104F3454aFe2fB9eA188fdB555');
 				break;
 			default:
 				netName = "mainnet"
 				web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
-				tellorMaster = new web3.eth.Contract(masterABI, 'tellorLens');
-				tellorLens = new web3.eth.Contract(lensABI, '0xB3b7C09e1501FE212b58eEE9915DA625706eea95');
+				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
+				tellorLens = new web3.eth.Contract(lensABI, '0xb2b6c6232d38fae21656703cac5a74e5314741d4');
 		}
 		console.log("using network:", netName)
 	} catch (e) {
@@ -197,12 +196,8 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 		console.log('getting requestID information...', req.params.requestID);
 		var _returned = await tellorMaster.methods.getRequestVars(req.params.requestID).call();
 		res.send({
-			apiString: _returned[0],
-			dataSymbol: _returned[1],
-			queryHash: _returned[2],
-			granularity: _returned[3],
-			requestQPosition: _returned[4],
-			totalTip: _returned[5]
+			requestQPosition: _returned[0],
+			totalTip: _returned[1],
 		})
 	} catch (e) {
 		let err = e.message
@@ -215,7 +210,7 @@ router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
 router.get('/:netName?/currentVariables', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let variables = await tellorMaster.methods.getCurrentVariables().call();
+		let variables = await tellorMaster.methods.getNewCurrentVariables().call();
 		res.send({ variables })
 	} catch (e) {
 		let err = e.message
@@ -226,7 +221,7 @@ router.get('/:netName?/currentVariables', async function (req, res) {
 router.get('/:netName?/getDisputeFee', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let disputeFee = await tellorMaster.methods.getUintVar(web3.utils.soliditySha3('disputeFee')).call();
+		let disputeFee = await tellorMaster.methods.getUintVar(web3.utils.keccak256('_DISPUTE_FEE')).call();
 		res.send({ disputeFee })
 	} catch (e) {
 		let err = e.message
