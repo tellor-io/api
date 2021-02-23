@@ -116,7 +116,7 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 	}
 })
 
-//Get latest parcesdata for as specific price request
+//Get latest data for all data IDs
 router.get('/:netName?/prices/:count?', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
@@ -132,8 +132,9 @@ router.get('/:netName?/prices/:count?', async function (req, res) {
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
 			results.push({
-				timestamp: r[index][0],
-				value: r[index][1],
+				timestamp: r[index].timestamp,
+				value: r[index].value,
+				name: r[index].name,
 			})
 		};
 		res.send(results);
