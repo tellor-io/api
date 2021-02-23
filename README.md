@@ -13,6 +13,10 @@ Requirements: Node.js version 9.2.0
 	npm install
 	node index
 ```
+or with nodemon for reload on file changes.
+```
+nodemon index.js
+```
 
 To update the contracts ABI
 ```bash
