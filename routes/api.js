@@ -15,7 +15,7 @@ function useNetwork(netName, res) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0xea8260126324cA104F3454aFe2fB9eA188fdB555');
+				tellorLens = new web3.eth.Contract(lensABI, '0x8FEC3e4171C446B4c4d2C798a87D679933Fa5cCD');
 				break;
 			default:
 				netName = "mainnet"
@@ -133,8 +133,9 @@ router.get('/:netName?/prices/:count?', async function (req, res) {
 		for (let index = 0; index < r.length; index++) {
 			results.push({
 				timestamp: r[index].timestamp,
-				value: r[index].value,
-				name: r[index].name,
+				value: +r[index].value / +r[index].meta.granularity,
+				name: r[index].meta.name,
+				id: r[index].meta.id,
 			})
 		};
 		res.send(results);
