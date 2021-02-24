@@ -15,7 +15,7 @@ function useNetwork(netName, res) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0x8FEC3e4171C446B4c4d2C798a87D679933Fa5cCD');
+				tellorLens = new web3.eth.Contract(lensABI, '0x06fD4e69bF0C9F642565529Fb4b7055371cFc91a');
 				break;
 			default:
 				netName = "mainnet"
