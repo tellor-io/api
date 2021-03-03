@@ -15,13 +15,13 @@ function useNetwork(netName, res) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0x75E086578eDD643199517532E5206d1f47869d4d');
+				tellorLens = new web3.eth.Contract(lensABI, '0xebEF7ceB7C43850898e258be0a1ea5ffcdBc3205');
 				break;
 			default:
 				netName = "mainnet"
 				web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0xb2b6c6232d38fae21656703cac5a74e5314741d4');
+				tellorLens = new web3.eth.Contract(lensABI, '0x577417CFaF319a1fAD90aA135E3848D2C00e68CF');
 		}
 		console.log("using network:", netName)
 	} catch (e) {
