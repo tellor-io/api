@@ -131,13 +131,16 @@ router.get('/:netName?/prices/:count?', async function (req, res) {
 		var r = await tellorLens.methods.getLastValuesAll(reqCount).call()
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
-			results.push({
-				timestamp: r[index].timestamp,
-				value: +r[index].value / +r[index].meta.granularity,
-				name: r[index].meta.name,
-				id: r[index].meta.id,
-				tip: r[index].tip,
-			})
+			if (+r[index].value != 0) {
+				results.push({
+					timestamp: r[index].timestamp,
+					value: +r[index].value / +r[index].meta.granularity,
+					name: r[index].meta.name,
+					id: r[index].meta.id,
+					tip: r[index].tip,
+				})
+			}
+
 		};
 		res.send(results);
 	} catch (e) {
