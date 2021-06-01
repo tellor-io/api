@@ -235,5 +235,16 @@ router.get('/:netName?/getDisputeFee', async function (req, res) {
 	}
 })
 
+router.get('/:netName?/getMiners/:requestID/:timestamp', async function (req, res) {
+	try {
+		useNetwork(req.params.netName, res)
+		let data = await tellorMaster.methods.getMinersByRequestIdAndTimestamp(req.params.requestID, req.params.timestamp).call();
+		res.send(data)
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	}
+})
+
 
 module.exports = router;
