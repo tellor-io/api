@@ -163,15 +163,16 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 			reportedMiner: _returned[4],
 			reportingParty: _returned[5],
 			proposedForkAddress: _returned[6],
-			requestId: _returned[7],
-			timestamp: _returned[8],
-			value: _returned[9],
-			minExecutionDate: _returned[10],
-			numberOfVotes: _returned[11],
-			blockNumber: _returned[12],
-			minerSlot: _returned[13],
-			quorum: _returned[14],
-			fee: _returned[15],
+			requestID: _returned[7][0],
+			timestamp: _returned[7][1],
+			value: _returned[7][2],
+			minExecutionDate: _returned[7][3],
+			numberOfVotes: _returned[7][4],
+			blockNumber: _returned[7][5],
+			minerSlot: _returned[7][6],
+			quorum: _returned[7][7],
+			fee: _returned[7][8],
+			tally: _returned[8]
 		})
 	} catch (e) {
 		let err = e.message
