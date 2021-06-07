@@ -246,5 +246,20 @@ router.get('/:netName?/getMiners/:requestID/:timestamp', async function (req, re
 	}
 })
 
+//Get data for a specific dispute
+router.get('/:netName?/getStakerInfo/:address', async function (req, res) {
+	try {
+		useNetwork(req.params.netName, res)
+		var resp = await tellorMaster.methods.getStakerInfo(req.params.address).call();
+		res.send({
+			status: resp[0],
+			stakeDate: resp[1],
+		})
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	}
+})
+
 
 module.exports = router;
