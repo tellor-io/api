@@ -57,6 +57,7 @@ router.get('/:netName?/info', async function (req, res) {
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		var _timeOfLastValue = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TIME_OF_LAST_NEW_VALUE")).call();
 		var _requestCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_REQUEST_COUNT")).call();
+		var _slotProgress = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_SLOT_PROGRESS")).call();
 		res.send({
 			stakerCount: _stakerCount,
 			difficulty: _difficulty,
@@ -64,7 +65,8 @@ router.get('/:netName?/info', async function (req, res) {
 			disputeCount: _disputeCount,
 			total_supply: _totalSupply,
 			timeOfLastNewValue: _timeOfLastValue,
-			requestCount: _requestCount
+			requestCount: _requestCount,
+			slotProgress: _slotProgress
 		})
 
 		//Allows user to save the API data requested to a file under the data folder
