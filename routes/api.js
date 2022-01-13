@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router();
+// const { ethers } = require("hardhat");
 var Web3 = require('web3');
 var fs = require('fs');
 var web3, tellorMaster, tellorMaster, tellorLens
@@ -15,7 +16,7 @@ function useNetwork(netName, res) {
 			case "rinkeby":
 				web3 = new Web3(process.env.nodeURLRinkeby || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0xebEF7ceB7C43850898e258be0a1ea5ffcdBc3205');
+				tellorLens = new web3.eth.Contract(lensABI, '0x16aC7874290B086D37D1B1ABC18153A8dCe8A335');
 				break;
 			default:
 				netName = "mainnet"
@@ -52,20 +53,20 @@ router.get('/:netName?/info', async function (req, res) {
 		//read data from Tellor's contract
 		var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
 		var _difficulty = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DIFFICULTY")).call();
-		var _currentRequestId = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_CURRENT_REQUESTID")).call();
+		// var _currentRequestId = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_CURRENT_QUERYID")).call();
 		var _disputeCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DISPUTE_COUNT")).call();
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		var _timeOfLastValue = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TIME_OF_LAST_NEW_VALUE")).call();
-		var _requestCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_REQUEST_COUNT")).call();
+		// var _requestCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_REQUEST_COUNT")).call();
 		var _slotProgress = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_SLOT_PROGRESS")).call();
 		res.send({
 			stakerCount: _stakerCount,
 			difficulty: _difficulty,
-			currentRequestId: _currentRequestId,
+			//currentRequestId: _currentRequestId,
 			disputeCount: _disputeCount,
 			total_supply: _totalSupply,
 			timeOfLastNewValue: _timeOfLastValue,
-			requestCount: _requestCount,
+			//requestCount: _requestCount,
 			slotProgress: _slotProgress
 		})
 
@@ -76,11 +77,11 @@ router.get('/:netName?/info', async function (req, res) {
 			timeChecked: _now,
 			stakerCount: _stakerCount,
 			difficulty: _difficulty,
-			currentRequestId: _currentRequestId,
+			//currentRequestId: _currentRequestId,
 			disputeCount: _disputeCount,
 			total_supply: _totalSupply,
 			timeOfLastNewValue: _timeOfLastValue,
-			requestCount: _requestCount
+			//requestCount: _requestCount
 		}
 		var jsonStats = JSON.stringify(state);
 		let filename = "public/state.json";
@@ -92,7 +93,7 @@ router.get('/:netName?/info', async function (req, res) {
 })
 
 //Get data for as specific price request
-router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
+router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		var reqCount = req.params.count
@@ -100,15 +101,16 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 		if (reqCount == undefined) {
 			reqCount = 1
 		}
-		var reqID = req.params.requestID
-		console.log('getting last', reqCount, 'prices for request ID', reqID);
-
-		var r = await tellorLens.methods.getLastValues(reqID, reqCount).call()
+		var queryID = req.params.queryID
+		var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
+		console.log('getting last', reqCount, 'prices for request ID', queryID);
+		var r = await tellorLens.methods.getLastValues(queryID, reqCount).call()
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
+		    var val = web3.utils.hexToNumberString(r[index].value) / scale;
 			results.push({
 				timestamp: r[index].timestamp,
-				value: r[index].value,
+				value: val.toString(),
 			})
 		};
 		res.send(results);
@@ -119,7 +121,7 @@ router.get('/:netName?/price/:requestID/:count?', async function (req, res) {
 })
 
 //Get latest data for all data IDs
-router.get('/:netName?/prices/:count?', async function (req, res) {
+router.get('/:netName?/prices/:queryIds?/:count?', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		var reqCount = req.params.count
@@ -127,19 +129,22 @@ router.get('/:netName?/prices/:count?', async function (req, res) {
 		if (reqCount == undefined) {
 			reqCount = 1
 		}
+        var queryIds0 = req.params.queryIds;
+        var queryIds = queryIds0.split("-");
+		console.log('getting last', reqCount, 'prices for following data IDs:', queryIds);
 
-		console.log('getting last', reqCount, 'prices for for all data IDs');
-
-		var r = await tellorLens.methods.getLastValuesAll(reqCount).call()
+		var r = await tellorLens.methods.getLastValuesAll(reqCount, queryIds).call()
+		//console.log(r);
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
 			if (+r[index].value != 0) {
+			    var scale = r[index].meta.id === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
+			    var val = web3.utils.hexToNumberString(r[index].value) / scale;
 				results.push({
 					timestamp: r[index].timestamp,
-					value: +r[index].value / +r[index].meta.granularity,
-					name: r[index].meta.name,
+					value: val,
 					id: r[index].meta.id,
-					tip: r[index].tip,
+				    tip: r[index].tip,
 				})
 			}
 
@@ -183,54 +188,11 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 })
 
 
-//Get data for a specific dispute
-router.get('/:netName?/requestq', async function (req, res) {
-	try {
-		useNetwork(req.params.netName, res)
-		console.log('getting requestq...');
-		var _returned = await tellorMaster.methods.getRequestQ().call();
-		res.send({
-			requestq: _returned
-		})
-	} catch (e) {
-		let err = e.message
-		res.send({ err });
-	}
-})
-
-//Get data for information about the specified requestID
-router.get('/:netName?/requestinfo/:requestID', async function (req, res) {
-	try {
-		useNetwork(req.params.netName, res)
-		console.log('getting requestID information...', req.params.requestID);
-		var _returned = await tellorMaster.methods.getRequestVars(req.params.requestID).call();
-		res.send({
-			requestQPosition: _returned[0],
-			totalTip: _returned[1],
-		})
-	} catch (e) {
-		let err = e.message
-		res.send({ err });
-	}
-})
-
-// Get data for information about the specified requestID
-// challenge, currentRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
-router.get('/:netName?/currentVariables', async function (req, res) {
-	try {
-		useNetwork(req.params.netName, res)
-		let variables = await tellorMaster.methods.getNewCurrentVariables().call();
-		res.send({ variables })
-	} catch (e) {
-		let err = e.message
-		res.send({ err });
-	}
-})
 
 router.get('/:netName?/getDisputeFee', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let disputeFee = await tellorMaster.methods.getUintVar(web3.utils.keccak256('_DISPUTE_FEE')).call();
+		let disputeFee = Web3.utils.fromWei(await tellorMaster.methods.getUintVar(web3.utils.keccak256('_DISPUTE_FEE')).call());
 		res.send({ disputeFee })
 	} catch (e) {
 		let err = e.message
@@ -238,22 +200,13 @@ router.get('/:netName?/getDisputeFee', async function (req, res) {
 	}
 })
 
-router.get('/:netName?/getMiners/:requestID/:timestamp', async function (req, res) {
-	try {
-		useNetwork(req.params.netName, res)
-		let data = await tellorMaster.methods.getMinersByRequestIdAndTimestamp(req.params.requestID, req.params.timestamp).call();
-		res.send(data)
-	} catch (e) {
-		let err = e.message
-		res.send({ err });
-	}
-})
 
 //Get data for a specific dispute
 router.get('/:netName?/getStakerInfo/:address', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		var resp = await tellorMaster.methods.getStakerInfo(req.params.address).call();
+		console.log(resp);
 		res.send({
 			status: resp[0],
 			stakeDate: resp[1],
