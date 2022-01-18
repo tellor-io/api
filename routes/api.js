@@ -22,7 +22,7 @@ function useNetwork(netName, res) {
 				netName = "mainnet"
 				web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
-				tellorLens = new web3.eth.Contract(lensABI, '0x577417CFaF319a1fAD90aA135E3848D2C00e68CF');
+				tellorLens = new web3.eth.Contract(lensABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd');
 		}
 		console.log("using network:", netName)
 	} catch (e) {
