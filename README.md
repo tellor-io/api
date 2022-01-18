@@ -33,13 +33,16 @@ To update the contracts ABI
 * Current variables:		http://localhost:5000/netName/currentVariables
 * Dispute Fees:		http://localhost:5000/netName/getDisputeFee
 * Request queue: http://localhost:5000/requestq
-* QequestId (api, granularity, etc..): http://localhost:5000/requestinfo/requestID
+* RequestId (api, granularity, etc..): http://localhost:5000/requestinfo/requestID
     * For example: http://localhost:5000/requestinfo/1
-* Price inforamtion for specified requestId: http://localhost:5000/price/requestID/count
+* Price information for specified requestId: http://localhost:5000/price/requestID/count
     * For example: http://localhost:5000/price/1/10<br/>
     Count is optional and defines how many historical values to return. When omitted it returns the most recent value.
-* Dispute inforamtion for a specific disputeId:  http://localhost:5000/dispute/:disputeID
+* Dispute information for a specific disputeId:  http://localhost:5000/dispute/:disputeID
 
-## Custom API 
+### Go in depth and provide examples for each endpoint
+### show python and js examples of how to connect
+
+## Custom API (broken link, is this still a thing?)
 Use the following hashes to read data from Tellor's contract.
 https://docs.tellor.io/tellor/integration/reference-page/variable-hashes
