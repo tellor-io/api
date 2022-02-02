@@ -3,7 +3,7 @@ const router = express.Router();
 // const { ethers } = require("hardhat");
 var Web3 = require('web3');
 var fs = require('fs');
-var web3, tellorMaster, tellorMaster, tellorLens
+var web3, tellorMaster, tellorMaster, tellorLens, tellorGovernance, tellorOracle
 
 function useNetwork(netName, res) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -11,6 +11,8 @@ function useNetwork(netName, res) {
 		console.log(process.cwd())
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
 		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
+		const governanceABI = JSON.parse(fs.readFileSync("contracts/tellorGovernance.json"));
+		const oracleABI = JSON.parse(fs.readFileSync("contracts/tellorOracle.json"));
 
 		switch (netName) {
 			case "rinkeby":
@@ -22,7 +24,9 @@ function useNetwork(netName, res) {
 				netName = "mainnet"
 				web3 = new Web3(process.env.nodeURL || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, '0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0');
+				tellorGovernance = new web3.eth.Contract(governanceABI, '0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00');
 				tellorLens = new web3.eth.Contract(lensABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd');
+				tellorOracle = new web3.eth.Contract(oracleABI, '0xe8218cACb0a5421BC6409e498d9f8CC8869945ea');
 		}
 		console.log("using network:", netName)
 	} catch (e) {
@@ -52,22 +56,14 @@ router.get('/:netName?/info', async function (req, res) {
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
 		var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
-		var _difficulty = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DIFFICULTY")).call();
-		// var _currentRequestId = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_CURRENT_QUERYID")).call();
-		var _disputeCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_DISPUTE_COUNT")).call();
+		var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
-		var _timeOfLastValue = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TIME_OF_LAST_NEW_VALUE")).call();
-		// var _requestCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_REQUEST_COUNT")).call();
-		var _slotProgress = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_SLOT_PROGRESS")).call();
+		var _timeOfLastValue = await tellorOracle.methods.getTimeOfLastNewValue().call();
 		res.send({
 			stakerCount: _stakerCount,
-			difficulty: _difficulty,
-			//currentRequestId: _currentRequestId,
 			disputeCount: _disputeCount,
 			total_supply: _totalSupply,
 			timeOfLastNewValue: _timeOfLastValue,
-			//requestCount: _requestCount,
-			slotProgress: _slotProgress
 		})
 
 		//Allows user to save the API data requested to a file under the data folder
@@ -161,25 +157,12 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		console.log('getting dispute info...', req.params.disputeID);
-		var _returned = await tellorMaster.methods.getAllDisputeVars(req.params.disputeID).call();
+		var _returned = await tellorGovernance.methods.getDisputeInfo(req.params.disputeID).call();
 		res.send({
-			hash: _returned[0],
-			executed: _returned[1],
-			disputeVotePassed: _returned[2],
-			isPropFork: _returned[3],
-			reportedMiner: _returned[4],
-			reportingParty: _returned[5],
-			proposedForkAddress: _returned[6],
-			requestID: _returned[7][0],
-			timestamp: _returned[7][1],
-			value: _returned[7][2],
-			minExecutionDate: _returned[7][3],
-			numberOfVotes: _returned[7][4],
-			blockNumber: _returned[7][5],
-			minerSlot: _returned[7][6],
-			quorum: _returned[7][7],
-			fee: _returned[7][8],
-			tally: _returned[8]
+			queryId: _returned[0],
+			timestamp: _returned[1],
+			value: _returned[2],
+			disputedReporter: _returned[3]
 		})
 	} catch (e) {
 		let err = e.message
