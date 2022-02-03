@@ -46,6 +46,6 @@ To use this API in projects without needing to run locally, all endpoints are ab
 For more information on queryIds, check out our [dataSpecs repository](https://github.com/tellor-io/dataSpecs). To see which queryIds are available to be used already, check out our [query catalog](https://github.com/tellor-io/dataSpecs/blob/main/catalog.md).
 
 Here are some examples to test by copying and pasting in your web browser:
-* most recent 10 AMPL/USD price updates: `https://api/tellorscan.com/price/0x000000000000000000000000000000000000000000000000000000000000000a/10`
-* most recent 10 ETH/USD and AMPL/USD price updates: `https://api/tellorscan.com/prices/0x0000000000000000000000000000000000000000000000000000000000000001-0x000000000000000000000000000000000000000000000000000000000000000a/10`
+* most recent 10 AMPL/USD price updates: `https://api.tellorscan.com/price/0x000000000000000000000000000000000000000000000000000000000000000a/10`
+* most recent 10 ETH/USD and AMPL/USD price updates: `https://api.tellorscan.com/prices/0x0000000000000000000000000000000000000000000000000000000000000001-0x000000000000000000000000000000000000000000000000000000000000000a/10`
 
