@@ -3,7 +3,7 @@ const router = express.Router();
 // const { ethers } = require("hardhat");
 var Web3 = require('web3');
 var fs = require('fs');
-var web3, tellorFlex, tellorLens, tellorGovernance, tellorMaster
+var web3, tellorFlex, tellorLens, tellorGovernance, tellorMaster, tellorAutopay
 
 function useNetwork(netName, res) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -12,39 +12,49 @@ function useNetwork(netName, res) {
 		const flexABI = JSON.parse(fs.readFileSync("contracts/tellorFlex.json"));
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
 		const governanceABI = JSON.parse(fs.readFileSync("contracts/tellorGovernance.json"));
-		//const oracleABI = JSON.parse(fs.readFileSync("contracts/tellorOracle.json"));
+		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
+		const autopayABI = JSON.parse(fs.readFileSync("contracts/tellorAutopay.json"));
 
 
-        //ADD: ropsten, goerli, harmony, kovan
+        //ADD: ropsten, goerli, harmony
 		switch (netName) {
 			case "rinkeby":
 				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0x095869B6aAAe04422C2bdc6f185C1f2Aba41EA6B');
 				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
+
 				break;
 
             case "polygon":
 				web3 = new Web3("https://polygon-mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0xFd45Ae72E81Adaaf01cC61c8bCe016b7060DD537');
 				tellorGovernance = new web3.eth.Contract(governanceABI, '0x98458269081eD05bA58babE3f004E46625C8D9F2');
+				tellorLens = new web3.eth.Contract(lensABI, '0x9bdb513a3099f7871123bd736c4ce01b948e4b0d')
+				tellorAutopay = new web3.eth.Contract(autopayABI, '0xD789488E5ee48Ef8b0719843672Bc04c213b648c')
 				break;
 
 			case "polygon-mumbai":
 				web3 = new Web3("https://polygon-mumbai.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0x41b66dd93b03e89D29114a7613A6f9f0d4F40178');
+				tellorLens = new web3.eth.Contract(lensABI, '0x9bDb513A3099f7871123bd736C4Ce01B948e4B0d')
 				tellorGovernance = new web3.eth.Contract(governanceABI, '0x8A868711e3cE97429faAA6be476F93907BCBc2bc');
+				tellorAutopay = new web3.eth.Contract(autopayABI, '0xD789488E5ee48Ef8b0719843672Bc04c213b648c');
 				break;
 
-            case "arbitrum-rinkeby":
-				web3 = new Web3("https://arbitrum-rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
+            case "arbitrum-testnet":
+				web3 = new Web3("https://arbitrum-testnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0xbB97C038c338c3DcAF06D5be3B4A3e0B24835f9C');
 				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
+				tellorLens = new web3.eth.Contract(lensABI, '0x9bdb513a3099f7871123bd736c4ce01b948e4b0d')
+				tellorAutopay = new web3.eth.Contract(autopayABI, '0x7B49420008BcA14782F2700547764AdAdD54F813')
 				break;
 
-			case "optimism-kovan":
-				web3 = new Web3("https://optimism-kovan.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
+			case "kovan":
+				web3 = new Web3("https://kovan.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0xa0013274d34a7c469952379646F26aA1C1237131');
 				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
+				tellorLens = new web3.eth.Contract(lensABI, '0x9bDb513A3099f7871123bd736C4Ce01B948e4B0d')
+				tellorAutopay = new web3.eth.Contract(autopayABI, '0x7B49420008BcA14782F2700547764AdAdD54F813')
 				break;
 		}
 		console.log("using network:", netName)
@@ -119,7 +129,8 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 			reqCount = 1
 		}
 		var queryID = req.params.queryID
-		var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
+		//var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
+		var scale = 1e18;
 		console.log('getting last', reqCount, 'prices for queryID', queryID);
 		var r = await tellorLens.methods.getLastValues(queryID, reqCount).call()
 		var results = [];
@@ -130,6 +141,23 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 				value: val.toString(),
 			})
 		};
+		res.send(results);
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	}
+})
+
+//Get tipcount for a specific queryid
+router.get('/:netName?/tips/:queryID', async function (req, res) {
+	try {
+		useNetwork(req.params.netName, res)
+		var queryID = req.params.queryID
+		console.log('getting tip count for queryID', queryID);
+		var r = await tellorAutopay.methods.getPastTipCount(queryID).call()
+        var results = [];
+        results.push({
+        tipcount: r.toString()})
 		res.send(results);
 	} catch (e) {
 		let err = e.message
@@ -179,7 +207,7 @@ router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 		res.send({
 			stakeDate: resp[0],
 			stakedBalance: resp[1],
-			lockedBalance; resp[2],
+			lockedBalance: resp[2],
 			reporterLastTimestamp: resp[3],
 			reportsSubmitted: resp[4]
 		})
