@@ -3,6 +3,8 @@ const router = express.Router();
 // const { ethers } = require("hardhat");
 var Web3 = require('web3');
 var fs = require('fs');
+require("dotenv").config()
+
 var web3, tellorFlex, tellorLens, tellorGovernance, tellorMaster, tellorAutopay
 
 function useNetwork(netName, res) {
@@ -15,9 +17,14 @@ function useNetwork(netName, res) {
 		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
 		const autopayABI = JSON.parse(fs.readFileSync("contracts/tellorAutopay.json"));
 
-
         //ADD: ropsten, goerli, harmony
 		switch (netName) {
+			case "mainnet":
+				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
+				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
+				tellorLens = new web3.eth.Contract(lensABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
+				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
+
 			case "rinkeby":
 				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0x095869B6aAAe04422C2bdc6f185C1f2Aba41EA6B');
@@ -85,11 +92,11 @@ router.get('/:netName?/info', async function (req, res) {
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
-		var _stakeAmount = await tellorLens.methods.getStakeAmount().call();
+		var _stakeAmount = await tellorLens.methods.stakeAmount().call();
+		console.log(_stakeAmount)
 		var _amountStaked = await tellorLens.methods.getTotalStakeAmount().call();
 		var _stakerCount = _amountStaked / _stakeAmount
 		var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
-		//var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
 		res.send({
 			stakeAmount: _stakeAmount,
@@ -133,6 +140,7 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		var scale = 1e18;
 		console.log('getting last', reqCount, 'prices for queryID', queryID);
 		var r = await tellorLens.methods.getLastValues(queryID, reqCount).call()
+		console.log("here")
 		var results = [];
 		for (let index = 0; index < r.length; index++) {
 		    var val = web3.utils.hexToNumberString(r[index].value) / scale;
@@ -215,6 +223,21 @@ router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 		let err = e.message
 		res.send({ err });
 	}
+})
+
+router.get('/totalSupply', async function (req, res) {
+
+	try {
+		useNetwork("mainnet", res)
+		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
+		_totalSupply = Number(_totalSupply) / Number(1E18)
+		res.send(
+			"" + _totalSupply
+		)
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	} 
 })
 
 
