@@ -228,9 +228,14 @@ router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 router.get('/totalSupply', async function (req, res) {
 
 	try {
+		let circulatingSupply, multiSigBalance
 		useNetwork("mainnet", res)
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		_totalSupply = Number(_totalSupply) / Number(1E18)
+		multiSigBalance = await tellorMaster.methods.balanceOf("0x39e419ba25196794b595b2a595ea8e527ddc9856").call()
+		multiSigBalance = Number(multiSigBalance) / Number(1E18)
+		console.log(multiSigBalance)
+		circulatingSupply = _totalSupply - multiSigBalance
 		res.send(
 			"" + _totalSupply
 		)
