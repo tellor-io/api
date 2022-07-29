@@ -14,7 +14,7 @@ function useNetwork(netName, res) {
 		const flexABI = JSON.parse(fs.readFileSync("contracts/tellorFlex.json"));
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
 		const governanceABI = JSON.parse(fs.readFileSync("contracts/tellorGovernance.json"));
-		const lensABI = JSON.parse(fs.readFileSync("contracts/tellorLens.json"));
+		const lensOldABI = JSON.parse(fs.readFileSync("contracts/tellorLensOld.json"));
 		const autopayABI = JSON.parse(fs.readFileSync("contracts/tellorAutopay.json"));
 
         //ADD: ropsten, goerli, harmony
@@ -22,7 +22,7 @@ function useNetwork(netName, res) {
 			case "mainnet":
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
-				tellorLens = new web3.eth.Contract(lensABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
+				tellorLensOld = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
 
 			case "rinkeby":
@@ -92,12 +92,14 @@ router.get('/:netName?/info', async function (req, res) {
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
+		if (netName == "mainnet") {
 		var _stakeAmount = await tellorLens.methods.stakeAmount().call();
 		console.log(_stakeAmount)
-		var _amountStaked = await tellorLens.methods.getTotalStakeAmount().call();
+		var _amountStaked = await tellorLens.methods.stakeCount().call();
 		var _stakerCount = _amountStaked / _stakeAmount
 		var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
 		var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
+		}
 		res.send({
 			stakeAmount: _stakeAmount,
 			amountStaked: _amountStaked,
@@ -225,17 +227,18 @@ router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 	}
 })
 
-router.get('/totalSupply', async function (req, res) {
+router.get('/circulatingSupply', async function (req, res) {
 
 	try {
-		let circulatingSupply, multiSigBalance
+		let circulatingSupply, multiSigBalance, devShare
 		useNetwork("mainnet", res)
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		_totalSupply = Number(_totalSupply) / Number(1E18)
 		multiSigBalance = await tellorMaster.methods.balanceOf("0x39e419ba25196794b595b2a595ea8e527ddc9856").call()
+		devShare = await tellorMaster.methods.balanceOf("0xAa304E98f47D4a6a421F3B1cC12581511dD69C55").call()
 		multiSigBalance = Number(multiSigBalance) / Number(1E18)
-		console.log(multiSigBalance)
-		circulatingSupply = _totalSupply - multiSigBalance
+		devShare = Number(devShare) / Number(1E18)
+		circulatingSupply = _totalSupply - multiSigBalance - devShare
 		res.send(
 			"" + _totalSupply
 		)
