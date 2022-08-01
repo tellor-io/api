@@ -22,7 +22,7 @@ function useNetwork(netName, res) {
 			case "mainnet":
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
-				tellorLensOld = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
+				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
 
 			case "rinkeby":
@@ -92,13 +92,12 @@ router.get('/:netName?/info', async function (req, res) {
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
-		if (netName == "mainnet") {
-		var _stakeAmount = await tellorLens.methods.stakeAmount().call();
-		console.log(_stakeAmount)
-		var _amountStaked = await tellorLens.methods.stakeCount().call();
-		var _stakerCount = _amountStaked / _stakeAmount
-		var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
-		var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
+		if (req.params.netName == "mainnet") {
+			var _stakeAmount = await tellorLens.methods.stakeAmount().call();
+			var _amountStaked = await tellorLens.methods.stakeCount().call();
+			var _stakerCount = _amountStaked / _stakeAmount
+			var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
+			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
 		}
 		res.send({
 			stakeAmount: _stakeAmount,
