@@ -138,7 +138,7 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		}
 		var queryID = req.params.queryID
 		//var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
-		var scale = 1e18;
+		var scale = 1e6;
 		console.log('getting last', reqCount, 'prices for queryID', queryID);
 		var r = await tellorLens.methods.getLastValues(queryID, reqCount).call()
 		console.log("here")
@@ -146,8 +146,8 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		for (let index = 0; index < r.length; index++) {
 		    var val = web3.utils.hexToNumberString(r[index].value) / scale;
 			results.push({
-				timestamp: r[index].timestamp,
-				value: val.toString(),
+				timestamp: Number(r[index].timestamp),
+				value: Number(val.toString()),
 			})
 		};
 		res.send(results);
