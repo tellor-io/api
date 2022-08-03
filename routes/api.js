@@ -93,6 +93,10 @@ router.get('/:netName?/info', async function (req, res) {
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
 		if (req.params.netName == "mainnet") {
+			var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
+			var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
+			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
+		} else {
 			var _stakeAmount = await tellorLens.methods.stakeAmount().call();
 			var _amountStaked = await tellorLens.methods.stakeCount().call();
 			var _stakerCount = _amountStaked / _stakeAmount
