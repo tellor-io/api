@@ -24,7 +24,6 @@ function useNetwork(netName, res) {
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
 				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
-
 			case "rinkeby":
 				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0x095869B6aAAe04422C2bdc6f185C1f2Aba41EA6B');
@@ -88,19 +87,23 @@ function processInput(filename, json) {
 
 // Get general Tellor state data and saves the data under data/state.json
 router.get('/:netName?/info', async function (req, res) {
-	try {
+	// try {
+		let _disputeCount
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
+		console.log(tellorMaster.address)
+		console.log(await tellorGovernance.resolvedAddress)
 		//read data from Tellor's contract
 		if (req.params.netName == "mainnet") {
 			var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
-			var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
+			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
+			console.log(_disputeCount)
 			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
 		} else {
 			var _stakeAmount = await tellorLens.methods.stakeAmount().call();
 			var _amountStaked = await tellorLens.methods.stakeCount().call();
 			var _stakerCount = _amountStaked / _stakeAmount
-			var _disputeCount = await tellorGovernance.methods.getVoteCount().call();
+			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
 			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
 		}
 		res.send({
@@ -125,10 +128,10 @@ router.get('/:netName?/info', async function (req, res) {
 		var jsonStats = JSON.stringify(state);
 		let filename = "public/state.json";
 		processInput(filename, jsonStats);
-	} catch (e) {
-		let err = e.message
-		res.send({ err });
-	}
+	// } catch (e) {
+	// 	let err = e.message
+	// 	res.send({ err });
+	// }
 })
 
 //Get data for as specific price request
@@ -243,7 +246,7 @@ router.get('/circulatingSupply', async function (req, res) {
 		devShare = Number(devShare) / Number(1E18)
 		circulatingSupply = _totalSupply - multiSigBalance - devShare
 		res.send(
-			"" + _totalSupply
+			"" + circulatingSupply
 		)
 	} catch (e) {
 		let err = e.message
