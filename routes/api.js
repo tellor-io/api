@@ -16,6 +16,7 @@ function useNetwork(netName, res) {
 		const governanceABI = JSON.parse(fs.readFileSync("contracts/tellorGovernance.json"));
 		const lensOldABI = JSON.parse(fs.readFileSync("contracts/tellorLensOld.json"));
 		const autopayABI = JSON.parse(fs.readFileSync("contracts/tellorAutopay.json"));
+		const oracleABI = JSON.parse(fs.readFileSync("contracts/tellorOracle.json"))
 
         //ADD: ropsten, goerli, harmony
 		switch (netName) {
@@ -24,6 +25,8 @@ function useNetwork(netName, res) {
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
 				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
+				oracle = new web3.eth.Contract(oracleABI, "0xe8218cacb0a5421bc6409e498d9f8cc8869945ea")
+				break
 			case "rinkeby":
 				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorFlex = new web3.eth.Contract(flexABI, '0x095869B6aAAe04422C2bdc6f185C1f2Aba41EA6B');
@@ -91,14 +94,14 @@ router.get('/:netName?/info', async function (req, res) {
 		let _disputeCount
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
-		console.log(tellorMaster.address)
-		console.log(await tellorGovernance.resolvedAddress)
+		// console.log(tellorMaster._address)
+		// console.log(tellorGovernance._address)
 		//read data from Tellor's contract
 		if (req.params.netName == "mainnet") {
 			var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
 			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
-			console.log(_disputeCount)
-			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
+			// console.log(_disputeCount)
+			var _timeOfLastValue = await oracle.methods.getTimeOfLastNewValue().call();
 		} else {
 			var _stakeAmount = await tellorLens.methods.stakeAmount().call();
 			var _amountStaked = await tellorLens.methods.stakeCount().call();
