@@ -236,6 +236,22 @@ router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 	}
 })
 
+router.get("/totalSupply", async function (req, res) {
+
+	try {
+		useNetwork("mainnet", res)
+		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
+		_totalSupply = Number(_totalSupply) / Number(1E18)
+
+		res.send(
+			"" + _totalSupply
+		)
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	} 
+})
+
 router.get('/circulatingSupply', async function (req, res) {
 
 	try {
