@@ -25,7 +25,7 @@ function useNetwork(netName, res) {
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
 				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
-				oracle = new web3.eth.Contract(oracleABI, "0xe8218cacb0a5421bc6409e498d9f8cc8869945ea")
+				oracle = new web3.eth.Contract(oracleABI, "0xB3B662644F8d3138df63D2F43068ea621e2981f9")
 				break
 			case "rinkeby":
 				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
@@ -150,16 +150,31 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		//var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
 		var scale = 1e6;
 		console.log('getting last', reqCount, 'prices for queryID', queryID);
-		var r = await tellorLens.methods.getLastValues(queryID, reqCount).call()
-		console.log("here")
+
+		let r, val, timestamp
+		try {
+			r = await oracle.methods.getDataBefore(queryID, Date.now() - 50).call()
+		} catch {
+			r = 0
+		}
+		
+		console.log(r)
 		var results = [];
-		for (let index = 0; index < r.length; index++) {
-		    var val = web3.utils.hexToNumberString(r[index].value) / scale;
-			results.push({
-				timestamp: Number(r[index].timestamp),
-				value: Number(val.toString()),
-			})
-		};
+		try {
+				console.log("ts  ", (r))
+				timestamp = Number(r._timestampRetrieved)
+				val = web3.utils.hexToNumberString(r._value) / scale;
+
+			} catch {
+				console.log("here")
+				timestamp = 0
+				val = NaN
+			}
+			console.log(2)
+				results.push({
+					timestamp: timestamp,
+					value: val,
+		})
 		res.send(results);
 	} catch (e) {
 		let err = e.message
