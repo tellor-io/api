@@ -157,7 +157,7 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		} catch {
 			r = 0
 		}
-		
+
 		console.log(r)
 		var results = [];
 		try {
