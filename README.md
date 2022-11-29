@@ -43,5 +43,4 @@ For more information on queryIds, check out our [dataSpecs repository](https://g
 
 Here are some examples to test by copying and pasting in your web browser:
 * most recent AMPL/USD price update: `https://api.tellorscan.com/price/0x0d12ad49193163bbbeff4e6db8294ced23ff8605359fd666799d4e25a3aa0e3a`
-* most recent ETH/USD and AMPL/USD price update: `https://api.tellorscan.com/prices/0x83a7f3d48786ac2667503a61e8c415438ed2922eb86a2906e4ee66d9a2ce4992-0x0d12ad49193163bbbeff4e6db8294ced23ff8605359fd666799d4e25a3aa0e3a
 
