@@ -24,7 +24,7 @@ function useNetwork(netName, res) {
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
 				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
-				tellorGovernance = new web3.eth.Contract(governanceABI, "0x51d4088d4EeE00Ae4c55f46E0673e9997121DB00")
+				tellorGovernance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
 				oracle = new web3.eth.Contract(oracleABI, "0xB3B662644F8d3138df63D2F43068ea621e2981f9")
 				break
 			case "rinkeby":
@@ -98,7 +98,7 @@ router.get('/:netName?/info', async function (req, res) {
 		// console.log(tellorGovernance._address)
 		//read data from Tellor's contract
 		if (req.params.netName == "mainnet") {
-			var _stakerCount = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_STAKE_COUNT")).call();
+			var _stakerCount = await oracle.methods.getTotalStakers().call();
 			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
 			// console.log(_disputeCount)
 			var _timeOfLastValue = await oracle.methods.getTimeOfLastNewValue().call();
