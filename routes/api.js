@@ -91,27 +91,22 @@ function processInput(filename, json) {
 // Get general Tellor state data and saves the data under data/state.json
 router.get('/:netName?/info', async function (req, res) {
 	// try {
-		let _disputeCount
+		let _disputeCount, _totalStaked, _numberOfStakes, _stakeAmount
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
-		// console.log(tellorMaster._address)
-		// console.log(tellorGovernance._address)
 		//read data from Tellor's contract
-		if (req.params.netName == "mainnet") {
-			var _stakerCount = await oracle.methods.getTotalStakers().call();
-			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
-			// console.log(_disputeCount)
-			var _timeOfLastValue = await oracle.methods.getTimeOfLastNewValue().call();
-		} else {
-			var _stakeAmount = await tellorLens.methods.stakeAmount().call();
-			var _amountStaked = await tellorLens.methods.stakeCount().call();
-			var _stakerCount = _amountStaked / _stakeAmount
-			_disputeCount = await tellorGovernance.methods.getVoteCount().call();
-			var _timeOfLastValue = await tellorFlex.methods.getTimeOfLastNewValue().call();
-		}
+
+		var _stakerCount = await oracle.methods.getTotalStakers().call();
+		_disputeCount = await tellorGovernance.methods.getVoteCount().call();
+		_totalStaked = await tellorMaster.methods.balanceOf(oracle._address).call()
+		_stakeAmount = await oracle.methods.stakeAmount().call()
+		_numberOfStakes = _totalStaked / await oracle.methods.stakeAmount().call()
+		var _timeOfLastValue = await oracle.methods.getTimeOfLastNewValue().call();
+
 		res.send({
-			stakeAmount: _stakeAmount,
-			amountStaked: _amountStaked,
+			stakeAmount: _stakeAmount / Number(1E18),
+			numberOfStakes: _numberOfStakes,
+			totalStaked: _totalStaked / Number(1E18),
 			stakerCount: _stakerCount,
 			disputeCount: _disputeCount,
 			timeOfLastNewValue: _timeOfLastValue,
