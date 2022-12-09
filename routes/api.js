@@ -265,15 +265,17 @@ router.get("/totalSupply", async function (req, res) {
 router.get('/circulatingSupply', async function (req, res) {
 
 	try {
-		let circulatingSupply, multiSigBalance, devShare
+		let circulatingSupply, multiSigBalance, safeBalance, devShare
 		useNetwork("mainnet", res)
 		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		_totalSupply = Number(_totalSupply) / Number(1E18)
 		multiSigBalance = await tellorMaster.methods.balanceOf("0x39e419ba25196794b595b2a595ea8e527ddc9856").call()
+		safeBalance = await tellorMaster.methods.balanceOf("0x1B8E06E7133B89ea5A799Bf2bF0221aE71959190").call()
 		devShare = await tellorMaster.methods.balanceOf("0xAa304E98f47D4a6a421F3B1cC12581511dD69C55").call()
 		multiSigBalance = Number(multiSigBalance) / Number(1E18)
+		safeBalance = Number(safeBalance) / Number(1E18)
 		devShare = Number(devShare) / Number(1E18)
-		circulatingSupply = _totalSupply - multiSigBalance - devShare
+		circulatingSupply = _totalSupply - multiSigBalance - safeBalance - devShare
 		res.send(
 			"" + circulatingSupply
 		)
