@@ -228,7 +228,6 @@ router.get('/:netName?/getDisputeFee', async function (req, res) {
 })
 
 
-//Get data for a specific dispute
 router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
