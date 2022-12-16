@@ -20,20 +20,20 @@ nodemon index.js
 
 
 4. Now visit these urls from your browser:
- >Each end point also accepts the network name as an optional parameter:<br/>
- When not provided it defaults to `mainnet`.<br/>
- `.../rinkeby/info` - connects to rinkeby <br/>
-`.../info` connects to `mainnet`
+ >Strings preceded by a ":" are variables, such as:<br/>
+ `.../:netName/...` - a placeholder for the network name <br/>
+`.../:address/...` - a placeholder for the address
 
 * General information:		http://localhost:5000/:netName/info
-* Dispute Fees:		http://localhost:5000/:netName/getDisputeFee
 * Price information for specified queryId: http://localhost:5000/price/:queryID/
     * For example: http://localhost:5000/price/0x0000000000000000000000000000000000000000000000000000000000000001
-    * Count is optional and defines how many historical values to return. When omitted it returns the most recent value.
-
-* For multiple queryIds: http://localhost:5000/prices/:queryIds/
-  * enter all queryIds as a list delimited by a hyphen (`-`) into the queryIds field
-* Dispute information for a specific disputeId:  http://localhost:5000/dispute/:disputeID
+    
+* For tips: http://localhost:5000/:netName?/tips/:queryID
+* For dispute fee: http://localhost:5000/netName?/getDisputeFee
+* For staker info: https://localhost:5000/:netName?/StakerInfo/:address
+* For total supply: https://localhost:5000/totalSupply
+* For circulating supply: https://localhost:5000/circulatingSupply
+* Dispute information for a specific disputeId:  http://localhost:5000/:netName/dispute/:disputeID
 
 ## To use:
 
