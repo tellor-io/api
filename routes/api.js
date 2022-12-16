@@ -25,6 +25,7 @@ function useNetwork(netName, res) {
 				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
 				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
 				tellorGovernance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
+				tellorAutopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
 				oracle = new web3.eth.Contract(oracleABI, "0xB3B662644F8d3138df63D2F43068ea621e2981f9")
 				break
 			case "rinkeby":
@@ -118,7 +119,7 @@ router.get('/:netName?/info', async function (req, res) {
 		state = {
 			timeChecked: _now,
 			stakeAmount: _stakeAmount,
-			amountStaked: _amountStaked,
+			totalStaked: _totalStaked,
 			stakerCount: _stakerCount,
 			disputeCount: _disputeCount,
 			timeOfLastNewValue: _timeOfLastValue,
@@ -200,7 +201,7 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		console.log('getting dispute info...', req.params.disputeID);
-		var _returned = await tellorLens.methods.getDisputeInfo(req.params.disputeID).call();
+		var _returned = await tellorGovernance.methods.getDisputeInfo(req.params.disputeID).call();
 		res.send({
 			queryId: _returned[0],
 			timestamp: _returned[1],
@@ -218,7 +219,7 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 router.get('/:netName?/getDisputeFee', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let disputeFee = await tellorLens.methods.getDisputeFee().call();
+		let disputeFee = await tellorGovernance.methods.getDisputeFee().call();
 		res.send({ disputeFee })
 	} catch (e) {
 		let err = e.message
@@ -231,7 +232,7 @@ router.get('/:netName?/getDisputeFee', async function (req, res) {
 router.get('/:netName?/StakerInfo/:address', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		var resp = await tellorFlex.methods.getStakerInfo(req.params.address).call();
+		var resp = await oracle.methods.getStakerInfo(req.params.address).call();
 		console.log(resp);
 		res.send({
 			stakeDate: resp[0],
