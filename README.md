@@ -8,7 +8,23 @@ To use this API in projects without needing to run locally, all endpoints are ab
 For more information on queryIds, check out our [dataSpecs repository](https://github.com/tellor-io/dataSpecs). To see which queryIds are available to be used already, check out our [query catalog](https://github.com/tellor-io/dataSpecs/blob/main/types).
 
 Here are some examples to test by copying and pasting in your web browser:
-* most recent AMPL/USD price update: `https://api.tellorscan.com/price/0x0d12ad49193163bbbeff4e6db8294ced23ff8605359fd666799d4e25a3aa0e3a`
+
+ >Note: Strings preceded by a ":" are variables, such as:<br/>
+ `.../:netName/...` - a placeholder for the network name (a string: mainnet, polygon, or polygon-mumbai) <br/>
+`.../:address/...` - a placeholder for the address (a hash) <br/>
+`.../:disputeID/...` - a placeholder for the disputeID (an integer)
+`.../:queryId/...` - a placeholder for the queryId (a hash)
+
+* General information:		https://api.tellorscan.com/:netName/info
+* Price information for specified queryId: api.tellorscan.com/price/:queryID/
+    * For example: https://api.tellorscan.com/price/0x83a7f3d48786ac2667503a61e8c415438ed2922eb86a2906e4ee66d9a2ce4992
+    
+* For tips: https://api.tellorscan.com/:netName?/tips/:queryID
+* For dispute fee: https://api.tellorscan.com/:netName/getDisputeFee
+* For staker info: https://api.tellorscan.com/:netName/StakerInfo/:address
+* For total supply: https://api.tellorscan.com/totalSupply
+* For circulating supply: https://api.tellorscan.com/circulatingSupply
+* Dispute information for a specific disputeId:  https://api.tellorscan.com/:netName/dispute/:disputeID
 
 ### To test:
 
@@ -27,20 +43,4 @@ or with nodemon for reload on file changes.
 nodemon index.js
 ```
 
-
-4. Now visit these urls from your browser:
- >Strings preceded by a ":" are variables, such as:<br/>
- `.../:netName/...` - a placeholder for the network name (mainnet, polygon, or polygon-mumbai) <br/>
-`.../:address/...` - a placeholder for the address
-
-* General information:		http://localhost:5000/:netName/info
-* Price information for specified queryId: http://localhost:5000/price/:queryID/
-    * For example: http://localhost:5000/price/0x0000000000000000000000000000000000000000000000000000000000000001
-    
-* For tips: http://localhost:5000/:netName?/tips/:queryID
-* For dispute fee: http://localhost:5000/netName?/getDisputeFee
-* For staker info: https://localhost:5000/:netName?/StakerInfo/:address
-* For total supply: https://localhost:5000/totalSupply
-* For circulating supply: https://localhost:5000/circulatingSupply
-* Dispute information for a specific disputeId:  http://localhost:5000/:netName/dispute/:disputeID
 
