@@ -1,5 +1,5 @@
 # Tellor API / api.tellorscan.com
-This repository allows you to create a local API for Tellor information. You can also use it with Tellor data without needing to run the code locally. 
+This API allows you to query Tellor for network data. The API is hosted at https://api.tellorscan.io
 
 ### To use:
 
