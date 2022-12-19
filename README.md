@@ -5,7 +5,7 @@ This repository allows you to create a local API for Tellor information. You can
 
 To use this API in projects without needing to run locally, all endpoints are able to be accessed at all times with updated data at https://api.tellorscan.com/
 
-For more information on queryIds, check out our [dataSpecs repository](https://github.com/tellor-io/dataSpecs). To see which queryIds are available to be used already, check out our [query catalog](https://github.com/tellor-io/dataSpecs/blob/main/catalog.md).
+For more information on queryIds, check out our [dataSpecs repository](https://github.com/tellor-io/dataSpecs). To see which queryIds are available to be used already, check out our [query catalog](https://github.com/tellor-io/dataSpecs/blob/main/types).
 
 Here are some examples to test by copying and pasting in your web browser:
 * most recent AMPL/USD price update: `https://api.tellorscan.com/price/0x0d12ad49193163bbbeff4e6db8294ced23ff8605359fd666799d4e25a3aa0e3a`
@@ -30,7 +30,7 @@ nodemon index.js
 
 4. Now visit these urls from your browser:
  >Strings preceded by a ":" are variables, such as:<br/>
- `.../:netName/...` - a placeholder for the network name <br/>
+ `.../:netName/...` - a placeholder for the network name (mainnet, polygon, or polygon-mumbai) <br/>
 `.../:address/...` - a placeholder for the address
 
 * General information:		http://localhost:5000/:netName/info
