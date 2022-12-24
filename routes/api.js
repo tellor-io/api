@@ -5,7 +5,7 @@ var Web3 = require('web3');
 var fs = require('fs');
 require("dotenv").config()
 
-var web3, tellorFlex, tellorLens, tellorGovernance, tellorMaster, tellorAutopay
+var token, oracle, governance, autopay
 
 function useNetwork(netName, res) {
 	// "Web3.providers.givenProvider" will be set if in an Ethereum supported browser.
@@ -14,7 +14,6 @@ function useNetwork(netName, res) {
 		const flexABI = JSON.parse(fs.readFileSync("contracts/tellorFlex.json"));
 		const masterABI = JSON.parse(fs.readFileSync("contracts/tellorMaster.json"));
 		const governanceABI = JSON.parse(fs.readFileSync("contracts/tellorGovernance.json"));
-		const lensOldABI = JSON.parse(fs.readFileSync("contracts/tellorLensOld.json"));
 		const autopayABI = JSON.parse(fs.readFileSync("contracts/tellorAutopay.json"));
 		const oracleABI = JSON.parse(fs.readFileSync("contracts/tellorOracle.json"))
 
@@ -22,49 +21,40 @@ function useNetwork(netName, res) {
 		switch (netName) {
 			case "mainnet":
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorMaster = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
-				tellorLens = new web3.eth.Contract(lensOldABI, '0xd259A9F7d5b263C400284e9544C9c0088c481cfd')
-				tellorGovernance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
-				tellorAutopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
+				token = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
+				governance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
+				autopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
 				oracle = new web3.eth.Contract(oracleABI, "0xB3B662644F8d3138df63D2F43068ea621e2981f9")
 				break
-			case "rinkeby":
-				web3 = new Web3("https://rinkeby.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorFlex = new web3.eth.Contract(flexABI, '0x095869B6aAAe04422C2bdc6f185C1f2Aba41EA6B');
-				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
-
-				break;
-
+			case "goerli":
+				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
+				token = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
+				governance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
+				autopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
+				oracle = new web3.eth.Contract(oracleABI, "0xB3B662644F8d3138df63D2F43068ea621e2981f9")
+				break
             case "polygon":
 				web3 = new Web3("https://polygon-mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorFlex = new web3.eth.Contract(flexABI, '0xFd45Ae72E81Adaaf01cC61c8bCe016b7060DD537');
-				tellorGovernance = new web3.eth.Contract(governanceABI, '0x98458269081eD05bA58babE3f004E46625C8D9F2');
-				tellorLens = new web3.eth.Contract(lensABI, '0x9bdb513a3099f7871123bd736c4ce01b948e4b0d')
-				tellorAutopay = new web3.eth.Contract(autopayABI, '0xD789488E5ee48Ef8b0719843672Bc04c213b648c')
+				token = new web3.eth.Contract(masterABI, "0xE3322702BEdaaEd36CdDAb233360B939775ae5f1")
+				oracle = new web3.eth.Contract(oracleABI, '0x8f55D884CAD66B79e1a131f6bCB0e66f4fD84d5B');
+				governance = new web3.eth.Contract(governanceABI, '0x7B74cc7d66f4b286A78d5F02a55E36E89c3fa9F0');
+				autopay = new web3.eth.Contract(autopayABI, '0xD789488E5ee48Ef8b0719843672Bc04c213b648c')
 				break;
 
 			case "polygon-mumbai":
 				web3 = new Web3("https://polygon-mumbai.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorFlex = new web3.eth.Contract(flexABI, '0x41b66dd93b03e89D29114a7613A6f9f0d4F40178');
-				tellorLens = new web3.eth.Contract(lensABI, '0x9bDb513A3099f7871123bd736C4Ce01B948e4B0d')
-				tellorGovernance = new web3.eth.Contract(governanceABI, '0x8A868711e3cE97429faAA6be476F93907BCBc2bc');
-				tellorAutopay = new web3.eth.Contract(autopayABI, '0xD789488E5ee48Ef8b0719843672Bc04c213b648c');
+				token = new web3.eth.Contract(masterABI, '0xce4e32fe9d894f8185271aa990d2db425df3e6be');
+				oracle = new web3.eth.Contract(oracleABI, '0x8f55D884CAD66B79e1a131f6bCB0e66f4fD84d5B')
+				governance = new web3.eth.Contract(governanceABI, '0x7B74cc7d66f4b286A78d5F02a55E36E89c3fa9F0');
+				autopay = new web3.eth.Contract(autopayABI, '0x1775704809521D4D7ee65B6aFb93816af73476ec');
 				break;
 
-            case "arbitrum-testnet":
-				web3 = new Web3("https://arbitrum-testnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorFlex = new web3.eth.Contract(flexABI, '0xbB97C038c338c3DcAF06D5be3B4A3e0B24835f9C');
-				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
-				tellorLens = new web3.eth.Contract(lensABI, '0x9bdb513a3099f7871123bd736c4ce01b948e4b0d')
-				tellorAutopay = new web3.eth.Contract(autopayABI, '0x7B49420008BcA14782F2700547764AdAdD54F813')
-				break;
-
-			case "kovan":
-				web3 = new Web3("https://kovan.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
-				tellorFlex = new web3.eth.Contract(flexABI, '0xa0013274d34a7c469952379646F26aA1C1237131');
-				tellorGovernance = new web3.eth.Contract(governanceABI, '0x3eb81A11DD28Fe8ED9f53D1456248aC86d5893C6');
-				tellorLens = new web3.eth.Contract(lensABI, '0x9bDb513A3099f7871123bd736C4Ce01B948e4B0d')
-				tellorAutopay = new web3.eth.Contract(autopayABI, '0x7B49420008BcA14782F2700547764AdAdD54F813')
+            case "arbitrum-mainnet":
+				web3 = new Web3("https://arbitrum.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
+				token = new web3.eth.Contract(masterABI, '0xd58D345Fd9c82262E087d2D0607624B410D88242');
+				oracle = new web3.eth.Contract(oracleABI, '0x73B6715D9289bdfE5e758bB7ace782Cc7C933cfC')
+				governance = new web3.eth.Contract(governanceABI, '0x8b201738c34f0459A4B09976bd905D5cc70FA333');
+				autopay = new web3.eth.Contract(autopayABI, '0xd844b26dfafb0776e70af12c19189b740329a266');
 				break;
 		}
 		console.log("using network:", netName)
@@ -91,15 +81,15 @@ function processInput(filename, json) {
 
 // Get general Tellor state data and saves the data under data/state.json
 router.get('/:netName?/info', async function (req, res) {
-	// try {
+	try {
 		let _disputeCount, _totalStaked, _numberOfStakes, _stakeAmount
 		useNetwork(req.params.netName, res)
 		console.log('getting all variable information...')
 		//read data from Tellor's contract
 
 		var _stakerCount = await oracle.methods.getTotalStakers().call();
-		_disputeCount = await tellorGovernance.methods.getVoteCount().call();
-		_totalStaked = await tellorMaster.methods.balanceOf(oracle._address).call()
+		_disputeCount = await governance.methods.getVoteCount().call();
+		_totalStaked = await token.methods.balanceOf(oracle._address).call()
 		_stakeAmount = await oracle.methods.stakeAmount().call()
 		_numberOfStakes = _totalStaked / await oracle.methods.stakeAmount().call()
 		var _timeOfLastValue = await oracle.methods.getTimeOfLastNewValue().call();
@@ -127,10 +117,10 @@ router.get('/:netName?/info', async function (req, res) {
 		var jsonStats = JSON.stringify(state);
 		let filename = "public/state.json";
 		processInput(filename, jsonStats);
-	// } catch (e) {
-	// 	let err = e.message
-	// 	res.send({ err });
-	// }
+	} catch (e) {
+		let err = e.message
+		res.send({ err });
+	}
 })
 
 //Get data for as specific price request
@@ -145,19 +135,14 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 		var queryID = req.params.queryID
 		//var scale = queryID === "0x000000000000000000000000000000000000000000000000000000000000000a" ? 1e18 : 1e6;
 		var scale = 1e6;
-		console.log('getting last', reqCount, 'prices for queryID', queryID);
-
 		let r, val, timestamp
 		try {
 			r = await oracle.methods.getDataBefore(queryID, Date.now() - 50).call()
 		} catch {
 			r = 0
 		}
-
-		console.log(r)
 		var results = [];
 		try {
-				console.log("ts  ", (r))
 				timestamp = Number(r._timestampRetrieved)
 				val = web3.utils.hexToNumberString(r._value) / scale;
 
@@ -166,7 +151,6 @@ router.get('/:netName?/price/:queryID/:count?', async function (req, res) {
 				timestamp = 0
 				val = NaN
 			}
-			console.log(2)
 				results.push({
 					timestamp: timestamp,
 					value: val,
@@ -201,7 +185,7 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
 		console.log('getting dispute info...', req.params.disputeID);
-		var _returned = await tellorGovernance.methods.getDisputeInfo(req.params.disputeID).call();
+		var _returned = await governance.methods.getDisputeInfo(req.params.disputeID).call();
 		res.send({
 			queryId: _returned[0],
 			timestamp: _returned[1],
@@ -219,7 +203,7 @@ router.get('/:netName?/dispute/:disputeID', async function (req, res) {
 router.get('/:netName?/getDisputeFee', async function (req, res) {
 	try {
 		useNetwork(req.params.netName, res)
-		let disputeFee = await tellorGovernance.methods.getDisputeFee().call();
+		let disputeFee = await governance.methods.getDisputeFee().call();
 		res.send({ disputeFee })
 	} catch (e) {
 		let err = e.message
@@ -250,7 +234,7 @@ router.get("/totalSupply", async function (req, res) {
 
 	try {
 		useNetwork("mainnet", res)
-		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
+		var _totalSupply = await token.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		_totalSupply = Number(_totalSupply) / Number(1E18)
 
 		res.send(
@@ -267,11 +251,11 @@ router.get('/circulatingSupply', async function (req, res) {
 	try {
 		let circulatingSupply, multiSigBalance, safeBalance, devShare
 		useNetwork("mainnet", res)
-		var _totalSupply = await tellorMaster.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
+		var _totalSupply = await token.methods.getUintVar(web3.utils.keccak256("_TOTAL_SUPPLY")).call();
 		_totalSupply = Number(_totalSupply) / Number(1E18)
-		multiSigBalance = await tellorMaster.methods.balanceOf("0x39e419ba25196794b595b2a595ea8e527ddc9856").call()
-		safeBalance = await tellorMaster.methods.balanceOf("0x1B8E06E7133B89ea5A799Bf2bF0221aE71959190").call()
-		devShare = await tellorMaster.methods.balanceOf("0xAa304E98f47D4a6a421F3B1cC12581511dD69C55").call()
+		multiSigBalance = await token.methods.balanceOf("0x39e419ba25196794b595b2a595ea8e527ddc9856").call()
+		safeBalance = await token.methods.balanceOf("0x1B8E06E7133B89ea5A799Bf2bF0221aE71959190").call()
+		devShare = await token.methods.balanceOf("0xAa304E98f47D4a6a421F3B1cC12581511dD69C55").call()
 		multiSigBalance = Number(multiSigBalance) / Number(1E18)
 		safeBalance = Number(safeBalance) / Number(1E18)
 		devShare = Number(devShare) / Number(1E18)

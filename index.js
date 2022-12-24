@@ -15,3 +15,5 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // Use favicon to avoid errors in the requests.
 app.use(favicon(__dirname + '/public/favicon.ico'));
+
+module.exports = app
