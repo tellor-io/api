@@ -1,5 +1,5 @@
 # Tellor API / api.tellorscan.com
-This repository allows you to create a local API for Tellor information. You can also use it with Tellor data without needing to run the code locally. 
+This API allows you to query Tellor for network data. The API is hosted at https://api.tellorscan.io
 
 ### To use:
 
@@ -7,8 +7,7 @@ To use this API in projects without needing to run locally, all endpoints are ab
 
 For more information on queryIds, check out our [dataSpecs repository](https://github.com/tellor-io/dataSpecs). To see which queryIds are available to be used already, check out our [query catalog](https://github.com/tellor-io/dataSpecs/blob/main/types).
 
-Here are some examples to test by copying and pasting in your web browser:
-
+Here are some ways to query the API from your browser:
  >Note: Strings preceded by a ":" are variables, such as:<br/>
  `.../:netName/...` - a placeholder for the network name (a string: mainnet, polygon, or polygon-mumbai) <br/>
 `.../:address/...` - a placeholder for the address (a hash) <br/>
