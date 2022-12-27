@@ -168,10 +168,10 @@ router.get('/:netName?/tips/:queryID', async function (req, res) {
 		useNetwork(req.params.netName, res)
 		var queryID = req.params.queryID
 		console.log('getting tip count for queryID', queryID);
-		var r = await tellorAutopay.methods.getPastTipCount(queryID).call()
+		var r = await autopay.methods.getPastTipCount(queryID).call()
         var results = [];
         results.push({
-        tipcount: r.toString()})
+        tipCount: r.toString()})
 		res.send(results);
 	} catch (e) {
 		let err = e.message

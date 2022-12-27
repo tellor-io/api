@@ -101,4 +101,17 @@ describe("API tests", async function () {
         }
 
     })
+
+    it("tips", async function () {
+
+        for (i = 0; i < networks.length; i++) {
+
+            let query_id = "0x83a7f3d48786ac2667503a61e8c415438ed2922eb86a2906e4ee66d9a2ce4992"
+
+            let req = await chai.request(server).get("/" + networks[i] + "/tips/" + query_id).send()
+
+            expect(req.text).contains("tipCount")
+        }
+
+    })
 })
