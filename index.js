@@ -1,3 +1,4 @@
+const log = require('why-is-node-running')
 require('dotenv').config()
 const express = require('express');
 const favicon = require('express-favicon');
