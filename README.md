@@ -1,5 +1,5 @@
 # Tellor API / api.tellorscan.com
-This API allows you to query Tellor for network data on Ethereum mainnet, goerli, polygon, polygon-mumbai, and arbitrum. The API is hosted at https://api.tellorscan.io
+This API allows you to query Tellor for network data on Ethereum mainnet, goerli, polygon, polygon-mumbai, chiado, and arbitrum. The API is hosted at https://api.tellorscan.io
 
 ### To use:
 
@@ -9,7 +9,7 @@ For more information on queryIds, check out our [dataSpecs repository](https://g
 
 Here are some ways to query the API from your browser:
  >Note: Strings preceded by a ":" are variables, such as:<br/>
- `.../:netName/...` - a placeholder for the network name (a string: mainnet, goerli, polygon, polygon-mumbai, arbitrum) <br/>
+ `.../:netName/...` - a placeholder for the network name (a string: mainnet, goerli, polygon, polygon-mumbai, arbitrum, chiado) <br/>
 `.../:address/...` - a placeholder for the address (a hash) <br/>
 `.../:disputeID/...` - a placeholder for the disputeID (an integer)
 `.../:queryId/...` - a placeholder for the queryId (a hash)
