@@ -15,7 +15,7 @@ Here are some ways to query the API from your browser:
 `.../:queryId/...` - a placeholder for the queryId (a hash)
 
 * General information:		https://api.tellorscan.com/:netName/info
-* Price information for specified queryId: api.tellorscan.com/price/:queryID/
+* Price information for specified queryId: https://api.tellorscan.com/price/:queryID/
     * For example: https://api.tellorscan.com/price/0x83a7f3d48786ac2667503a61e8c415438ed2922eb86a2906e4ee66d9a2ce4992
     
 * For tips: https://api.tellorscan.com/:netName?/tips/:queryID
