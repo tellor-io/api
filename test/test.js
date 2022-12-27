@@ -11,7 +11,7 @@ chai.use(chaiHttp)
 
 describe("API tests", async function () {
 
-    let networks = ["mainnet", "goerli", "polygon", "polygon-mumbai", "arbitrum"]
+    let networks = ["mainnet", "goerli", "polygon", "polygon-mumbai", "arbitrum", "chiado"]
 
     it("info page", async function () {
 

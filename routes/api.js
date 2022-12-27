@@ -56,7 +56,16 @@ function useNetwork(netName, res) {
 				governance = new web3.eth.Contract(governanceABI, '0x8b201738c34f0459A4B09976bd905D5cc70FA333');
 				autopay = new web3.eth.Contract(autopayABI, '0xd844b26dfafb0776e70af12c19189b740329a266');
 				break;
+
+			case "chiado":
+				web3 = new Web3("https://rpc.chiadochain.net");
+				token = new web3.eth.Contract(masterABI, '0xe7147C5Ed14F545B4B17251992D1DB2bdfa26B6d');
+				oracle = new web3.eth.Contract(oracleABI, '0xd71F72C18767083e4e3FE84F9c62b8038C1Ef4f6')
+				governance = new web3.eth.Contract(governanceABI, '0x18274F81f683fDd8739888a877a3a1F591009e35');
+				autopay = new web3.eth.Contract(autopayABI, '0x59eA612DECE1b51cE0d3D3bA3ca7Fc96B5553E96');
+				break;
 		}
+
 		console.log("using network:", netName)
 	} catch (e) {
 		let err = e.message
