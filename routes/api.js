@@ -22,14 +22,14 @@ function useNetwork(netName, res) {
 			case "mainnet":
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				token = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
-				governance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
+				governance = new web3.eth.Contract(governanceABI, "0x46038969D7DC0b17BC72137D07b4eDe43859DA45")
 				autopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
 				oracle = new web3.eth.Contract(oracleABI, "0xD9157453E2668B2fc45b7A803D3FEF3642430cC0")
 				break
 			case "goerli":
 				web3 = new Web3("https://mainnet.infura.io/v3/" + process.env.infura_key || Web3.givenProvider);
 				token = new web3.eth.Contract(masterABI, "0x88df592f8eb5d7bd38bfef7deb0fbc02cf3778a0")
-				governance = new web3.eth.Contract(governanceABI, "0x02803dcFD7Cb32E97320CFe7449BFb45b6C931b8")
+				governance = new web3.eth.Contract(governanceABI, "0x46038969D7DC0b17BC72137D07b4eDe43859DA45")
 				autopay = new web3.eth.Contract(autopayABI, "0x1F033Cb8A2Df08a147BC512723fd0da3FEc5cCA7")
 				oracle = new web3.eth.Contract(oracleABI, "0xD9157453E2668B2fc45b7A803D3FEF3642430cC0")
 				break
