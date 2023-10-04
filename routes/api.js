@@ -268,7 +268,8 @@ router.get('/circulatingSupply', async function (req, res) {
 		multiSigBalance = Number(multiSigBalance) / Number(1E18)
 		safeBalance = Number(safeBalance) / Number(1E18)
 		devShare = Number(devShare) / Number(1E18)
-		circulatingSupply = _totalSupply - multiSigBalance - safeBalance - devShare
+		Math.round(circulatingSupply) = _totalSupply - multiSigBalance - safeBalance - devShare
+		console.log("print circ supply",circulatingSupply)
 		res.send(
 			"" + circulatingSupply
 		)
@@ -280,3 +281,4 @@ router.get('/circulatingSupply', async function (req, res) {
 
 
 module.exports = router;
+
