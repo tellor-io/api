@@ -247,7 +247,7 @@ router.get("/totalSupply", async function (req, res) {
 		_totalSupply = Number(_totalSupply) / Number(1E18)
 
 		res.send(
-			"" + _totalSupply
+			"" + Math.round(_totalSupply)
 		)
 	} catch (e) {
 		let err = e.message
