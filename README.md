@@ -33,13 +33,22 @@ Requirements: Node.js version 14.x
 2. Create a .env file based on the example (update the nodeURL)
 3. Run:
 
+To run tests:
+```node
+npm install
+npm test
+```
+
+To run locally:
 ```node
 npm install
 node index
 ```
+
 or with nodemon for reload on file changes.
 ```
 nodemon index.js
 ```
 
+### To Update the API: push changes to the main branch on github.
 
